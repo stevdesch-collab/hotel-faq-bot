@@ -1,6 +1,8 @@
 # Hotel guest FAQ bot - step 2: a web page version.
 # Uses the same answer_question function as the terminal version in faq_bot.py.
 
+import os
+
 import gradio as gr
 
 from faq_bot import answer_question
@@ -37,4 +39,9 @@ demo = gr.ChatInterface(
     flagging_mode="never",
 )
 
-demo.launch()
+# Hosting services like Render tell the app which port to use through the PORT setting.
+# On your own Mac there's no PORT, so it runs at http://localhost:7860 like before.
+if os.environ.get("PORT"):
+    demo.launch(server_name="0.0.0.0", server_port=int(os.environ["PORT"]))
+else:
+    demo.launch()
