@@ -6,10 +6,26 @@ import gradio as gr
 from faq_bot import answer_question
 
 
+def message_text(content):
+    """Gradio stores a message's content either as plain text or as a list of pieces; return the text."""
+    if isinstance(content, str):
+        return content
+    text = ""
+    for piece in content:
+        if isinstance(piece, dict) and piece.get("type") == "text":
+            text = text + piece["text"]
+    return text
+
+
 def chat(message, history):
     # Gradio calls this every time the guest sends a message.
-    # "history" holds the earlier chat; we don't use it yet, so each question is answered on its own.
-    return answer_question(message)
+    # "history" holds the earlier chat; we pass it along so Claude can follow the conversation.
+    past = []
+    for msg in history:
+        text = message_text(msg["content"])
+        if text:
+            past.append({"role": msg["role"], "content": text})
+    return answer_question(message, past)
 
 
 demo = gr.ChatInterface(

@@ -32,8 +32,18 @@ Hotel information:
 client = anthropic.Anthropic()
 
 
-def answer_question(question):
-    """Send one guest question to Claude and return the answer as a string."""
+def answer_question(question, history=None):
+    """Send a guest question to Claude and return the answer as a string.
+
+    history is the conversation so far: a list of messages like
+    {"role": "user", "content": "..."} and {"role": "assistant", "content": "..."}.
+    Claude has no memory of its own, so we send the whole conversation every time.
+    """
+    messages = []
+    if history:
+        messages = list(history)
+    messages.append({"role": "user", "content": question})
+
     try:
         response = client.beta.messages.create(
             model="claude-opus-5-5",
@@ -43,7 +53,7 @@ def answer_question(question):
             betas=["server-side-fallback-2026-07-01"],
             fallbacks="default",
             system=system_prompt,
-            messages=[{"role": "user", "content": question}],
+            messages=messages,
         )
     except anthropic.AuthenticationError:
         return "Your API key isn't working. Check ANTHROPIC_API_KEY."
@@ -63,6 +73,7 @@ def answer_question(question):
 # This part only runs when you start this file directly (not when app.py imports it)
 if __name__ == "__main__":
     print("Welcome! Ask me anything about the hotel. Type 'quit' to exit.")
+    history = []
 
     while True:
         question = input("\nGuest: ")
@@ -70,4 +81,9 @@ if __name__ == "__main__":
             break
         if question.strip() == "":
             continue
-        print("Bot:", answer_question(question))
+        answer = answer_question(question, history)
+        print("Bot:", answer)
+
+        # Remember this exchange so follow-up questions make sense
+        history.append({"role": "user", "content": question})
+        history.append({"role": "assistant", "content": answer})

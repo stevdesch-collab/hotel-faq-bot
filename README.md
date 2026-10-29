@@ -14,6 +14,7 @@ I spent years in hospitality, where the same handful of guest questions come up 
   - If the answer isn't there, say so and offer to connect the guest with the front desk. **Never make up details.**
   - Keep answers short and warm, like a good front desk agent.
 - `app.py` puts a chat web page in front of the bot using [Gradio](https://www.gradio.app/).
+- **Conversation memory:** Claude doesn't remember anything between requests, so the bot sends the whole conversation each time. That's what lets a guest ask "Is there parking?" and then "How much is it?"
 
 The "don't make things up" rule matters most. A bot that confidently invents a pool or a spa is worse than no bot at all, so a good test is asking about something the hotel doesn't have.
 
@@ -55,7 +56,6 @@ Or chat in the terminal:
 
 ## What I'd add next
 
-- Conversation memory, so follow-up questions like "and how much is it?" make sense.
 - Hosting it online so anyone can try it.
 - Loading info for multiple hotels.
 
