@@ -1,5 +1,6 @@
 # Hotel guest FAQ bot.
-# Reads the hotel's info from hotel_info.txt, then answers guest questions with Claude.
+# Each hotel's info lives in its own text file in the "hotels" folder.
+# The first line of each file is the hotel's name.
 # Run this file for the terminal version, or run app.py for the web page version.
 
 import os
@@ -13,20 +14,43 @@ if not os.environ.get("ANTHROPIC_API_KEY"):
     print('  export ANTHROPIC_API_KEY="paste-your-key-here"')
     sys.exit(1)
 
-# Load the hotel's information so Claude can answer from it
-fhand = open("hotel_info.txt")
-hotel_info = fhand.read()
-fhand.close()
+# The "hotels" folder sits next to this file
+HOTELS_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hotels")
 
-# The "system prompt" tells Claude who it is and what rules to follow
-system_prompt = """You are a friendly front desk assistant for a hotel.
+
+def load_hotels():
+    """Read every .txt file in the hotels folder.
+
+    Returns a dictionary mapping each hotel's name to its full information.
+    """
+    hotels = {}
+    for filename in sorted(os.listdir(HOTELS_FOLDER)):
+        if not filename.endswith(".txt"):
+            continue
+        fhand = open(os.path.join(HOTELS_FOLDER, filename))
+        info = fhand.read()
+        fhand.close()
+        name = info.strip().split("\n")[0]  # first line is the hotel's name
+        hotels[name] = info
+    return hotels
+
+
+hotels = load_hotels()
+hotel_names = list(hotels.keys())
+
+
+def make_system_prompt(hotel_name):
+    """The "system prompt" tells Claude who it is and what rules to follow."""
+    return """You are a friendly front desk assistant for """ + hotel_name + """.
 Answer guest questions using ONLY the hotel information below.
 If the answer is not in the information, say you're not sure and offer to
-connect the guest with the front desk (dial 0). Never make up details.
+connect the guest with the front desk, using the contact details in the
+information. Never make up details.
 Keep answers short and warm, like a good front desk agent would.
 
 Hotel information:
-""" + hotel_info
+""" + hotels[hotel_name]
+
 
 # Reads your API key from the ANTHROPIC_API_KEY environment variable
 client = anthropic.Anthropic()
@@ -35,8 +59,8 @@ MAX_QUESTION_LENGTH = 500  # characters per guest message
 MAX_HISTORY_MESSAGES = 20  # about 10 back-and-forth exchanges per conversation
 
 
-def answer_question(question, history=None):
-    """Send a guest question to Claude and return the answer as a string.
+def answer_question(question, history, hotel_name):
+    """Send a guest question about one hotel to Claude and return the answer as a string.
 
     history is the conversation so far: a list of messages like
     {"role": "user", "content": "..."} and {"role": "assistant", "content": "..."}.
@@ -45,12 +69,10 @@ def answer_question(question, history=None):
     # Limits so a public version can't run up a big bill
     if len(question) > MAX_QUESTION_LENGTH:
         return "Sorry, that message is a bit long for me. Could you ask it in fewer words?"
-    if history and len(history) >= MAX_HISTORY_MESSAGES:
-        return "We've covered a lot! Please clear the chat to start a new conversation, or dial 0 for the front desk."
+    if len(history) >= MAX_HISTORY_MESSAGES:
+        return "We've covered a lot! Please clear the chat to start a new conversation."
 
-    messages = []
-    if history:
-        messages = list(history)
+    messages = list(history)
     messages.append({"role": "user", "content": question})
 
     try:
@@ -61,7 +83,7 @@ def answer_question(question, history=None):
             # If the main model declines a request, retry on a fallback model automatically
             betas=["server-side-fallback-2026-07-01"],
             fallbacks="default",
-            system=system_prompt,
+            system=make_system_prompt(hotel_name),
             messages=messages,
         )
     except anthropic.AuthenticationError:
@@ -81,7 +103,17 @@ def answer_question(question, history=None):
 
 # This part only runs when you start this file directly (not when app.py imports it)
 if __name__ == "__main__":
-    print("Welcome! Ask me anything about the hotel. Type 'quit' to exit.")
+    print("Which hotel are you staying at?")
+    for i in range(len(hotel_names)):
+        print(" ", i + 1, hotel_names[i])
+
+    choice = input("Enter a number: ")
+    if not choice.strip().isdigit() or not 1 <= int(choice) <= len(hotel_names):
+        print("That's not one of the options.")
+        sys.exit(1)
+    hotel_name = hotel_names[int(choice) - 1]
+
+    print("\nWelcome to " + hotel_name + "! Ask me anything. Type 'quit' to exit.")
     history = []
 
     while True:
@@ -90,7 +122,7 @@ if __name__ == "__main__":
             break
         if question.strip() == "":
             continue
-        answer = answer_question(question, history)
+        answer = answer_question(question, history, hotel_name)
         print("Bot:", answer)
 
         # Remember this exchange so follow-up questions make sense

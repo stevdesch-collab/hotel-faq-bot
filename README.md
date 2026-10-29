@@ -10,8 +10,9 @@ I spent years in hospitality, where the same handful of guest questions come up 
 
 ## How it works
 
-- `hotel_info.txt` holds the hotel's details in plain text. Edit this file to use the bot for a different hotel.
-- `faq_bot.py` sends the guest's question to Claude along with a **system prompt** containing the hotel info and a few rules:
+- The `hotels` folder holds one plain-text file per hotel, with the hotel's name on the first line. There are three fictional hotels: a waterfront hotel, a mountain lodge, and a city boutique hotel. **To add a hotel, just drop in a new `.txt` file**; no code changes needed.
+- Guests pick their hotel from a dropdown. Switching hotels starts a fresh conversation, so details from one hotel never leak into another.
+- `faq_bot.py` sends the guest's question to Claude along with a **system prompt** containing that hotel's info and a few rules:
   - Answer only from the hotel information.
   - If the answer isn't there, say so and offer to connect the guest with the front desk. **Never make up details.**
   - Keep answers short and warm, like a good front desk agent.
@@ -22,7 +23,7 @@ The "don't make things up" rule matters most. A bot that confidently invents a p
 
 ## Example
 
-The sample hotel allows dogs under 50 lbs and has no spa. Here's how the bot handled both:
+The Harbor View Hotel allows dogs under 50 lbs and has no spa. Here's how the bot handled both:
 
 > **Guest:** can i bring my 80lb dog
 > **Bot:** I'm so sorry, but our pet policy only allows dogs **under 50 lbs**, so an 80 lb pup unfortunately wouldn't qualify. If you have any questions about this, I'd be happy to connect you with the front desk. Just **dial 0** from your room phone.
@@ -58,7 +59,7 @@ Or chat in the terminal:
 
 ## What I'd add next
 
-- Loading info for multiple hotels.
+- An automatic test set: a list of guest questions with the answers each hotel should give, checked every time the prompt changes.
 
 ## Built with
 
