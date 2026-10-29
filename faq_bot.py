@@ -31,6 +31,9 @@ Hotel information:
 # Reads your API key from the ANTHROPIC_API_KEY environment variable
 client = anthropic.Anthropic()
 
+MAX_QUESTION_LENGTH = 500  # characters per guest message
+MAX_HISTORY_MESSAGES = 20  # about 10 back-and-forth exchanges per conversation
+
 
 def answer_question(question, history=None):
     """Send a guest question to Claude and return the answer as a string.
@@ -39,6 +42,12 @@ def answer_question(question, history=None):
     {"role": "user", "content": "..."} and {"role": "assistant", "content": "..."}.
     Claude has no memory of its own, so we send the whole conversation every time.
     """
+    # Limits so a public version can't run up a big bill
+    if len(question) > MAX_QUESTION_LENGTH:
+        return "Sorry, that message is a bit long for me. Could you ask it in fewer words?"
+    if history and len(history) >= MAX_HISTORY_MESSAGES:
+        return "We've covered a lot! Please clear the chat to start a new conversation, or dial 0 for the front desk."
+
     messages = []
     if history:
         messages = list(history)
@@ -47,7 +56,7 @@ def answer_question(question, history=None):
     try:
         response = client.beta.messages.create(
             model="claude-opus-5-5",
-            max_tokens=16000,
+            max_tokens=2000,  # front desk answers are short; this caps the cost of each reply
             output_config={"effort": "low"},  # quick, simple answers
             # If the main model declines a request, retry on a fallback model automatically
             betas=["server-side-fallback-2026-07-01"],
