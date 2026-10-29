@@ -2,6 +2,8 @@
 
 A virtual front desk assistant that answers hotel guests' questions — check-in times, parking, breakfast, pet policy, and more — using Claude.
 
+**[Try it live →](https://hotel-faq-bot.onrender.com)** *(hosted on a free server that sleeps when idle, so the first visit can take about a minute to wake up)*
+
 ![The bot answering guest questions about breakfast, an 80 lb dog, and a spa the hotel doesn't have](screenshot.png)
 
 I spent years in hospitality, where the same handful of guest questions come up all day. This project is my first step in applying AI to that problem: a bot that answers from the hotel's own information, and hands off to a human when it doesn't know.
@@ -56,11 +58,10 @@ Or chat in the terminal:
 
 ## What I'd add next
 
-- Hosting it online so anyone can try it.
 - Loading info for multiple hotels.
 
 ## Built with
 
-Python · [Anthropic Claude API](https://docs.anthropic.com) · [Gradio](https://www.gradio.app/)
+Python · [Anthropic Claude API](https://docs.anthropic.com) · [Gradio](https://www.gradio.app/) · Hosted on [Render](https://render.com)
 
 Built after completing *Python for Everybody* (University of Michigan, Coursera) and *ChatGPT Prompt Engineering for Developers* (DeepLearning.AI).
