@@ -2,7 +2,16 @@
 # Reads the hotel's info from hotel_info.txt, then answers guest questions with Claude.
 # Run this file for the terminal version, or run app.py for the web page version.
 
+import os
+import sys
+
 import anthropic
+
+# Stop right away with a clear message if the API key hasn't been set
+if not os.environ.get("ANTHROPIC_API_KEY"):
+    print("No API key found. Run this first, then try again:")
+    print('  export ANTHROPIC_API_KEY="paste-your-key-here"')
+    sys.exit(1)
 
 # Load the hotel's information so Claude can answer from it
 fhand = open("hotel_info.txt")
