@@ -2,6 +2,8 @@
 
 A virtual front desk assistant that answers hotel guests' questions — check-in times, parking, breakfast, pet policy, and more — using Claude.
 
+![The bot answering guest questions about breakfast, an 80 lb dog, and a spa the hotel doesn't have](screenshot.png)
+
 I spent years in hospitality, where the same handful of guest questions come up all day. This project is my first step in applying AI to that problem: a bot that answers from the hotel's own information, and hands off to a human when it doesn't know.
 
 ## How it works
@@ -17,7 +19,15 @@ The "don't make things up" rule matters most. A bot that confidently invents a p
 
 ## Example
 
-The sample hotel allows dogs under 50 lbs, so asking "Can I bring my 80 lb dog?" should get a friendly no that explains the limit, not a made-up exception. Asking "Is there a spa?" (there isn't one) should get an offer to connect you with the front desk.
+The sample hotel allows dogs under 50 lbs and has no spa. Here's how the bot handled both:
+
+> **Guest:** can i bring my 80lb dog
+> **Bot:** I'm so sorry, but our pet policy only allows dogs **under 50 lbs**, so an 80 lb pup unfortunately wouldn't qualify. If you have any questions about this, I'd be happy to connect you with the front desk. Just **dial 0** from your room phone.
+
+> **Guest:** is there a spa?
+> **Bot:** I'm not sure. I don't have any information about a spa here. The front desk can tell you more (just dial 0 from your room phone, and they're available 24 hours). In the meantime, our **fitness center** on the 2nd floor is open 24 hours with your room key, and our **rooftop pool** is open 8:00 AM to 9:00 PM, May through September. Is there anything else I can help with?
+
+It applied the pet policy correctly, and instead of inventing a spa it handed off to the front desk and suggested amenities the hotel actually has.
 
 ## Running it yourself
 
