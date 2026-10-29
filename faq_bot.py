@@ -1,0 +1,64 @@
+# Hotel guest FAQ bot.
+# Reads the hotel's info from hotel_info.txt, then answers guest questions with Claude.
+# Run this file for the terminal version, or run app.py for the web page version.
+
+import anthropic
+
+# Load the hotel's information so Claude can answer from it
+fhand = open("hotel_info.txt")
+hotel_info = fhand.read()
+fhand.close()
+
+# The "system prompt" tells Claude who it is and what rules to follow
+system_prompt = """You are a friendly front desk assistant for a hotel.
+Answer guest questions using ONLY the hotel information below.
+If the answer is not in the information, say you're not sure and offer to
+connect the guest with the front desk (dial 0). Never make up details.
+Keep answers short and warm, like a good front desk agent would.
+
+Hotel information:
+""" + hotel_info
+
+# Reads your API key from the ANTHROPIC_API_KEY environment variable
+client = anthropic.Anthropic()
+
+
+def answer_question(question):
+    """Send one guest question to Claude and return the answer as a string."""
+    try:
+        response = client.beta.messages.create(
+            model="claude-opus-5-5",
+            max_tokens=16000,
+            output_config={"effort": "low"},  # quick, simple answers
+            # If the main model declines a request, retry on a fallback model automatically
+            betas=["server-side-fallback-2026-07-01"],
+            fallbacks="default",
+            system=system_prompt,
+            messages=[{"role": "user", "content": question}],
+        )
+    except anthropic.AuthenticationError:
+        return "Your API key isn't working. Check ANTHROPIC_API_KEY."
+    except anthropic.APIConnectionError:
+        return "Couldn't reach Claude. Check your internet connection."
+    except anthropic.APIStatusError as e:
+        return "Something went wrong: " + e.message
+
+    # The reply comes back as a list of "blocks"; join the text ones together
+    answer = ""
+    for block in response.content:
+        if block.type == "text":
+            answer = answer + block.text
+    return answer
+
+
+# This part only runs when you start this file directly (not when app.py imports it)
+if __name__ == "__main__":
+    print("Welcome! Ask me anything about the hotel. Type 'quit' to exit.")
+
+    while True:
+        question = input("\nGuest: ")
+        if question.strip().lower() in ("quit", "exit"):
+            break
+        if question.strip() == "":
+            continue
+        print("Bot:", answer_question(question))

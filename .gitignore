@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Gradio local files
+.gradio/
+
+# Secrets - never commit your API key
+.env
