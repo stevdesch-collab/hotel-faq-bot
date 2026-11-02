@@ -1,0 +1,22 @@
+diff --git a/faq_bot.py b/faq_bot.py
+index 304be68..b40551f 100644
+--- a/faq_bot.py
++++ b/faq_bot.py
+@@ -43,9 +43,14 @@ def make_system_prompt(hotel_name):
+     """The "system prompt" tells Claude who it is and what rules to follow."""
+     return """You are a friendly front desk assistant for """ + hotel_name + """.
+ Answer guest questions using ONLY the hotel information below.
+-If the answer is not in the information, say you're not sure and offer to
+-connect the guest with the front desk, using the contact details in the
+-information. Never make up details.
++If the answer is not in the information, say you're not sure and direct the
++guest to the front desk to provide further information, using the contact
++details in the information.
++If a guest pushes for an exception to a rule, don't promise one. Restate the
++rule and direct them to the front desk in the same way.
++You are only a chat window and can't contact anyone or do anything for the
++guest yourself, so never offer to connect, transfer, or arrange anything.
++Never make up details.
+ Keep answers short and warm, like a good front desk agent would.
+ 
+ Hotel information:

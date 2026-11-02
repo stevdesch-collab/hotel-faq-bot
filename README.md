@@ -63,6 +63,7 @@ A chatbot can look great in a demo and still fail on the awkward questions, so `
 
 - A second, cheaper AI model grades each answer against its checklist, and against whether it made anything up. Before trusting those grades, `check_grader.py` tests the grader on answers whose correct grade is already known, including one that tries to trick it.
 - The first full run scored **35 of 37**. Both misses were the same problem: the bot offered to "connect" guests to the front desk, which a chat window can't do. The bot's own prompt was causing that, so the test found a real bug no one had complained about.
+- After I fixed the prompt, the bot passed **74 of 74** (each question asked twice) and never offered to connect anyone. The test set is now nearly saturated, so harder questions are the next step.
 
 ```bash
 .venv/bin/python evals/check_grader.py
