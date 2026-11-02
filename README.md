@@ -57,9 +57,21 @@ Or chat in the terminal:
 .venv/bin/python faq_bot.py
 ```
 
+## Testing the bot
+
+A chatbot can look great in a demo and still fail on the awkward questions, so `evals/` holds an automatic test set of 37 guest questions across the three hotels. I reviewed every question and set the pass/fail rules from my hospitality experience, including how to handle a guest pushing for an exception: never promise one, and always send them to the front desk.
+
+- A second, cheaper AI model grades each answer against its checklist, and against whether it made anything up. Before trusting those grades, `check_grader.py` tests the grader on answers whose correct grade is already known, including one that tries to trick it.
+- The first full run scored **35 of 37**. Both misses were the same problem: the bot offered to "connect" guests to the front desk, which a chat window can't do. The bot's own prompt was causing that, so the test found a real bug no one had complained about.
+
+```bash
+.venv/bin/python evals/check_grader.py
+.venv/bin/python evals/run_evals.py
+```
+
 ## What I'd add next
 
-- An automatic test set: a list of guest questions with the answers each hotel should give, checked every time the prompt changes.
+- More test questions from real guest conversations, since nearly all of the current ones pass.
 
 ## Built with
 

@@ -1,0 +1,22 @@
+{
+  "metrics": [
+    {
+      "id": "passed",
+      "label": "Passed",
+      "kind": "binary"
+    },
+    {
+      "id": "checklist_met",
+      "label": "Checklist met",
+      "kind": "binary"
+    },
+    {
+      "id": "no_made_up",
+      "label": "No made-up",
+      "kind": "binary"
+    }
+  ],
+  "perf_fields": [
+    "latency_s"
+  ]
+}

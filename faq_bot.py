@@ -57,6 +57,37 @@ client = anthropic.Anthropic()
 
 MAX_QUESTION_LENGTH = 500  # characters per guest message
 MAX_HISTORY_MESSAGES = 20  # about 10 back-and-forth exchanges per conversation
+MODEL = "claude-opus-5-5"
+
+
+def get_response(question, history, hotel_name):
+    """Ask Claude and return its full response. API problems raise an exception.
+
+    The automatic tests in the evals folder call this directly, so they test the
+    same request the guests get and can also see details like the token counts.
+    """
+    messages = list(history)
+    messages.append({"role": "user", "content": question})
+
+    return client.beta.messages.create(
+        model=MODEL,
+        max_tokens=2000,  # front desk answers are short; this caps the cost of each reply
+        output_config={"effort": "low"},  # quick, simple answers
+        # If the main model declines a request, retry on a fallback model automatically
+        betas=["server-side-fallback-2026-07-01"],
+        fallbacks="default",
+        system=make_system_prompt(hotel_name),
+        messages=messages,
+    )
+
+
+def response_text(response):
+    """The reply comes back as a list of "blocks"; join the text ones together."""
+    answer = ""
+    for block in response.content:
+        if block.type == "text":
+            answer = answer + block.text
+    return answer
 
 
 def answer_question(question, history, hotel_name):
@@ -72,20 +103,8 @@ def answer_question(question, history, hotel_name):
     if len(history) >= MAX_HISTORY_MESSAGES:
         return "We've covered a lot! Please clear the chat to start a new conversation."
 
-    messages = list(history)
-    messages.append({"role": "user", "content": question})
-
     try:
-        response = client.beta.messages.create(
-            model="claude-opus-5-5",
-            max_tokens=2000,  # front desk answers are short; this caps the cost of each reply
-            output_config={"effort": "low"},  # quick, simple answers
-            # If the main model declines a request, retry on a fallback model automatically
-            betas=["server-side-fallback-2026-07-01"],
-            fallbacks="default",
-            system=make_system_prompt(hotel_name),
-            messages=messages,
-        )
+        response = get_response(question, history, hotel_name)
     except anthropic.AuthenticationError:
         return "Your API key isn't working. Check ANTHROPIC_API_KEY."
     except anthropic.APIConnectionError:
@@ -93,12 +112,7 @@ def answer_question(question, history, hotel_name):
     except anthropic.APIStatusError as e:
         return "Something went wrong: " + e.message
 
-    # The reply comes back as a list of "blocks"; join the text ones together
-    answer = ""
-    for block in response.content:
-        if block.type == "text":
-            answer = answer + block.text
-    return answer
+    return response_text(response)
 
 
 # This part only runs when you start this file directly (not when app.py imports it)

@@ -11,3 +11,9 @@ __pycache__/
 
 # Secrets - never commit your API key
 .env
+
+# Eval output that can be regenerated
+**/traces/
+.claude/hillclimb/*/report.html
+.claude/hillclimb/*/state.json
+.claude/hillclimb/*/trajectory/
