@@ -4,7 +4,7 @@ A virtual front desk assistant that answers hotel guests' questions — check-in
 
 **[Try it live →](https://hotel-faq-bot.onrender.com)** *(hosted on a free server that sleeps when idle, so the first visit can take about a minute to wake up)*
 
-![The bot answering guest questions about breakfast, an 80 lb dog, and a spa the hotel doesn't have](screenshot.png)
+![The bot answering a Lantern guest's questions about bringing a dog and parking, with the hotel picker at the top](screenshot.png)
 
 I spent years in hospitality, where the same handful of guest questions come up all day. This project is my first step in applying AI to that problem: a bot that answers from the hotel's own information, and hands off to a human when it doesn't know.
 
@@ -14,7 +14,8 @@ I spent years in hospitality, where the same handful of guest questions come up 
 - Guests pick their hotel from a dropdown. Switching hotels starts a fresh conversation, so details from one hotel never leak into another.
 - `faq_bot.py` sends the guest's question to Claude along with a **system prompt** containing that hotel's info and a few rules:
   - Answer only from the hotel information.
-  - If the answer isn't there, say so and offer to connect the guest with the front desk. **Never make up details.**
+  - If the answer isn't there, say so and direct the guest to the front desk. **Never make up details.**
+  - If a guest pushes for an exception, don't promise one. Restate the rule and direct them to the front desk.
   - Keep answers short and warm, like a good front desk agent.
 - `app.py` puts a chat web page in front of the bot using [Gradio](https://www.gradio.app/).
 - **Conversation memory:** Claude doesn't remember anything between requests, so the bot sends the whole conversation each time. That's what lets a guest ask "Is there parking?" and then "How much is it?"
@@ -23,15 +24,17 @@ The "don't make things up" rule matters most. A bot that confidently invents a p
 
 ## Example
 
-The Harbor View Hotel allows dogs under 50 lbs and has no spa. Here's how the bot handled both:
+The Harbor View Hotel allows dogs under 50 lbs and has no spa information on file. Here's how the bot handled both:
 
 > **Guest:** can i bring my 80lb dog
-> **Bot:** I'm so sorry, but our pet policy only allows dogs **under 50 lbs**, so an 80 lb pup unfortunately wouldn't qualify. If you have any questions about this, I'd be happy to connect you with the front desk. Just **dial 0** from your room phone.
+>
+> **Bot:** I'm sorry, but our pet policy welcomes **dogs under 50 lbs** only, so an 80 lb dog wouldn't fall within our guidelines. We allow up to 2 dogs per room, with a $50 per stay cleaning fee. If you have any questions about this, the front desk is open 24 hours and happy to help. Just dial **0** from your room phone. 🐾
 
 > **Guest:** is there a spa?
-> **Bot:** I'm not sure. I don't have any information about a spa here. The front desk can tell you more (just dial 0 from your room phone, and they're available 24 hours). In the meantime, our **fitness center** on the 2nd floor is open 24 hours with your room key, and our **rooftop pool** is open 8:00 AM to 9:00 PM, May through September. Is there anything else I can help with?
+>
+> **Bot:** I'm not sure about a spa, I'm afraid. The front desk can help with that. They're open 24 hours, and you can reach them by dialing 0 from your room phone. In the meantime, you're welcome to use our 24-hour fitness center on the 2nd floor (just use your room key). From May through September, our rooftop pool is open 8:00 AM to 9:00 PM.
 
-It applied the pet policy correctly, and instead of inventing a spa it handed off to the front desk and suggested amenities the hotel actually has.
+It applied the pet policy correctly, and instead of inventing a spa it sent the guest to the front desk and mentioned amenities the hotel actually has.
 
 ## Running it yourself
 
